@@ -16,4 +16,22 @@ document.addEventListener("DOMContentLoaded", function () {
         handleTopbarShadow();
         window.addEventListener("scroll", handleTopbarShadow, { passive: true });
     }
+
+    var mobileNav = document.getElementById("mobileNav");
+    if (mobileNav) {
+        mobileNav.addEventListener("click", function (event) {
+            var link = event.target.closest("a.nav-link");
+            if (!link) {
+                return;
+            }
+
+            var href = link.getAttribute("href");
+            if (!href || href === "#" || href.startsWith("javascript:")) {
+                return;
+            }
+
+            // Force navigation on mobile menu click to avoid stale offcanvas state.
+            window.location.assign(href);
+        });
+    }
 });
