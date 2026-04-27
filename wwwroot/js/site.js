@@ -2,3 +2,18 @@
 // for details on configuring this project to bundle and minify static web assets.
 
 // Write your JavaScript code.
+document.addEventListener("DOMContentLoaded", function () {
+    var topbar = document.querySelector(".topbar-mobile");
+    if (topbar) {
+        var handleTopbarShadow = function () {
+            if (window.scrollY > 8) {
+                topbar.classList.add("scrolled");
+            } else {
+                topbar.classList.remove("scrolled");
+            }
+        };
+
+        handleTopbarShadow();
+        window.addEventListener("scroll", handleTopbarShadow, { passive: true });
+    }
+});

@@ -28,7 +28,7 @@ namespace SolarBilling.Controllers
         // GET: ServiceVisit/Upcoming
         public async Task<IActionResult> Upcoming()
         {
-            var today = DateTime.Today;
+            var today = DateTime.UtcNow.Date;
             // Only show Scheduled visits (future visits that haven't been completed yet)
             var upcomingVisits = await _context.ServiceVisits
                 .Include(s => s.AMC)
@@ -80,7 +80,7 @@ namespace SolarBilling.Controllers
             // Default to tomorrow (future date) for new service visits
             var serviceVisit = new ServiceVisit
             {
-                VisitDate = DateTime.Today.AddDays(1), // Tomorrow by default
+                VisitDate = DateTime.UtcNow.Date.AddDays(1), // Tomorrow by default
                 VisitTime = new TimeSpan(9, 0, 0), // 9:00 AM default
                 Status = "Scheduled"
             };
@@ -112,7 +112,7 @@ namespace SolarBilling.Controllers
             }
 
             // Validate VisitDate is in the future (for new service visits)
-            if (serviceVisit.VisitDate.Date < DateTime.Today)
+            if (serviceVisit.VisitDate.Date < DateTime.UtcNow.Date)
             {
                 ModelState.AddModelError("VisitDate", "Visit date must be today or a future date.");
             }

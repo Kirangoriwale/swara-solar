@@ -22,9 +22,7 @@
 
 html {
     font-size: 14px;
-    position: relative;
     min-height: 100%;
-    height: 100%;
 }
 
 @media (min-width: 768px) {
@@ -42,23 +40,23 @@ body {
     background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     color: var(--text-primary);
-    display: flex;
-    flex-direction: column;
     min-height: 100vh;
 }
 
 .main-content-wrapper {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
+    display: block;
+    flex: 1 1 auto;
+    min-height: 0;
     width: 100%;
     overflow: visible;
+    padding-bottom: 44px;
 }
 
 /* App shell with left navigation */
 .app-shell {
     display: flex;
     min-height: 100vh;
+    align-items: stretch;
 }
 
 .sidebar-nav {
@@ -110,7 +108,7 @@ body {
 }
 
 .content-shell {
-    flex: 1;
+    flex: 1 1 auto;
     display: flex;
     flex-direction: column;
     min-width: 0;
@@ -120,6 +118,14 @@ body {
 .topbar-mobile {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     box-shadow: var(--shadow-md);
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+    transition: box-shadow 0.2s ease;
+}
+
+.topbar-mobile.scrolled {
+    box-shadow: 0 8px 16px rgba(17, 24, 39, 0.25);
 }
 
 .topbar-mobile .navbar-brand {
@@ -338,7 +344,7 @@ table.table thead.table-primary th {
     margin-top: 2rem;
     margin-bottom: 2rem;
     box-shadow: var(--shadow-lg);
-    flex: 1;
+    flex: 0 0 auto;
 }
 
 .app-content-container {
@@ -379,7 +385,15 @@ h1.display-4 {
     width: 100%;
     font-size: 0.8rem;
     line-height: 1.2;
-    margin-top: auto;
+    margin-top: 0;
+    position: fixed;
+    left: 260px;
+    right: 0;
+    bottom: 0;
+    width: auto;
+    z-index: 1020;
+    pointer-events: none;
+    clear: none;
 }
 
 .footer .container {
@@ -554,7 +568,7 @@ h2 i {
 @media (max-width: 991.98px) {
     .app-shell {
         display: block;
-        min-height: auto;
+        min-height: 0;
     }
 
     .sidebar-nav {
@@ -574,6 +588,10 @@ h2 i {
 
     .main-content-wrapper {
         overflow: visible;
+        display: block;
+        flex: 1 1 auto;
+        min-height: 0;
+        padding-bottom: 52px;
     }
 
     .offcanvas .sidebar-menu .nav-link {
@@ -644,6 +662,8 @@ h2 i {
     .footer {
         font-size: 0.72rem;
         padding: 0.6rem 0;
+        left: 0;
+        width: 100%;
     }
 
     .footer .container {
@@ -666,7 +686,6 @@ h2 i {
 }
 
 @media (max-width: 575.98px) {
-    .container,
     .app-content-container {
         width: calc(100% - 0.5rem);
     }
@@ -682,5 +701,9 @@ h2 i {
 
     main {
         min-height: auto;
+    }
+
+    .footer {
+        padding-bottom: calc(0.6rem + env(safe-area-inset-bottom));
     }
 }
