@@ -1,0 +1,89 @@
+@model SolarBilling.Models.Invoice
+
+@{
+    ViewData["Title"] = "Invoice Details";
+}
+
+<div>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Invoice Details</h2>
+        <a asp-action="DownloadPdf" asp-route-id="@Model.Id" class="btn btn-success">Download PDF</a>
+    </div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.InvoiceNumber)</dt>
+        <dd class="col-sm-10">@Html.DisplayFor(model => model.InvoiceNumber)</dd>
+
+        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.InvoiceDate)</dt>
+        <dd class="col-sm-10">@Model.InvoiceDate.ToString("dd MMM yyyy")</dd>
+
+        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Customer)</dt>
+        <dd class="col-sm-10">@Html.DisplayFor(model => model.Customer.Name)</dd>
+
+        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.PONumber)</dt>
+        <dd class="col-sm-10">@Html.DisplayFor(model => model.PONumber)</dd>
+
+        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.PODate)</dt>
+        <dd class="col-sm-10">@(Model.PODate?.ToString("dd MMM yyyy") ?? "-")</dd>
+    </dl>
+
+    <h4>Items</h4>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>HSN</th>
+                <th>Quantity</th>
+                <th>Unit Price</th>
+                <th>Tax %</th>
+                <th>Amount</th>
+                <th>Tax</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.InvoiceItems)
+            {
+                <tr>
+                    <td>@item.Product.Name</td>
+                    <td>@(item.Product.HSNCode ?? "-")</td>
+                    <td>@item.Quantity.ToString("0.00")</td>
+                    <td>₹ @item.UnitPrice.ToString("0.00")</td>
+                    <td>@item.TaxRate.ToString("0.00")%</td>
+                    <td>₹ @item.Amount.ToString("0.00")</td>
+                    <td>₹ @item.TaxAmount.ToString("0.00")</td>
+                    <td>₹ @item.TotalAmount.ToString("0.00")</td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="5" class="text-end"><strong>Subtotal:</strong></td>
+                <td><strong>₹ @Model.Subtotal.ToString("0.00")</strong></td>
+                <td><strong>₹ @Model.TaxAmount.ToString("0.00")</strong></td>
+                <td><strong>₹ @Model.TotalAmount.ToString("0.00")</strong></td>
+            </tr>
+        </tfoot>
+    </table>
+
+    @if (!string.IsNullOrEmpty(Model.Notes))
+    {
+        <div class="mb-3">
+            <strong>Notes:</strong>
+            <p>@Model.Notes</p>
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(Model.TermsConditions))
+    {
+        <div class="mb-3">
+            <strong>Terms & Conditions:</strong>
+            <p>@Model.TermsConditions</p>
+        </div>
+    }
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a>
+    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+</div>
+

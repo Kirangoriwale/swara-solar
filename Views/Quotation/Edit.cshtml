@@ -1,0 +1,314 @@
+@model SolarBilling.Models.Quotation
+@using Microsoft.AspNetCore.Mvc.Rendering
+@using Microsoft.EntityFrameworkCore
+@using System.Net
+@inject SolarBilling.Data.ApplicationDbContext DbContext
+
+@{
+    ViewData["Title"] = "Edit Quotation";
+    var products = await DbContext.Products.Where(p => p.IsActive).OrderBy(p => p.Name).ToListAsync();
+    var customers = await DbContext.Customers.OrderBy(c => c.Name).ToListAsync();
+}
+
+<div class="page-header d-flex justify-content-between align-items-center mb-2">
+    <h2 class="text-primary mb-0"><i class="bi bi-file-earmark-text me-2"></i>Edit Quotation</h2>
+</div>
+
+<div class="card shadow-sm rounded-lg">
+    <div class="card-body p-3">
+        <form asp-action="Edit" id="quotationForm">
+            <div asp-validation-summary="All" class="alert alert-danger py-2 mb-2" role="alert" style="display: none;"></div>
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="CreatedDate" />
+            
+            <!-- Quotation Information Section -->
+            <div class="mb-2">
+                <h6 class="text-primary border-bottom pb-1 mb-2 small fw-semibold"><i class="bi bi-info-circle me-1"></i>Quotation Information</h6>
+                <div class="row g-2">
+                    <div class="col-md-4">
+                        <label asp-for="QuotationNumber" class="form-label small fw-semibold mb-1"></label>
+                        <input asp-for="QuotationNumber" class="form-control form-control-sm" readonly />
+                        <span asp-validation-for="QuotationNumber" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="QuotationDate" class="form-label small fw-semibold mb-1"></label>
+                        <input asp-for="QuotationDate" class="form-control form-control-sm" type="date" />
+                        <span asp-validation-for="QuotationDate" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="ValidUntil" class="form-label small fw-semibold mb-1"></label>
+                        <input asp-for="ValidUntil" class="form-control form-control-sm" type="date" />
+                        <span asp-validation-for="ValidUntil" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Customer & Status Section -->
+            <div class="mb-2">
+                <h6 class="text-primary border-bottom pb-1 mb-2 small fw-semibold"><i class="bi bi-person me-1"></i>Customer & Status</h6>
+                <div class="row g-2">
+                    <div class="col-md-6">
+                        <label asp-for="CustomerId" class="form-label small fw-semibold mb-1"></label>
+                        <select name="CustomerId" id="CustomerId" class="form-select form-select-sm">
+                            <option value="">-- Select Customer --</option>
+                            @foreach (var customer in customers)
+                            {
+                                <option value="@customer.Id" selected="@(customer.Id == Model.CustomerId ? "selected" : null)">@customer.Name</option>
+                            }
+                        </select>
+                        <span asp-validation-for="CustomerId" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Status" class="form-label small fw-semibold mb-1"></label>
+                        <select asp-for="Status" class="form-select form-select-sm">
+                            <option value="Draft">Draft</option>
+                            <option value="Sent">Sent</option>
+                            <option value="Accepted">Accepted</option>
+                            <option value="Rejected">Rejected</option>
+                        </select>
+                        <span asp-validation-for="Status" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Items Section -->
+            <div class="mb-2">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="text-primary border-bottom pb-1 mb-0 small fw-semibold"><i class="bi bi-list-ul me-1"></i>Items</h6>
+                    <button type="button" id="addItem" class="btn btn-secondary btn-sm">
+                        <i class="bi bi-plus-circle me-1"></i>Add Row
+                    </button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-sm mb-0" id="itemsTable">
+                        <thead class="table-primary">
+                            <tr>
+                                <th class="small fw-bold text-white" style="width: 25%;">Product</th>
+                                <th class="small fw-bold text-white text-center" style="width: 8%;">Qty</th>
+                                <th class="small fw-bold text-white text-center" style="width: 12%;">MRP</th>
+                                <th class="small fw-bold text-white text-center" style="width: 12%;">Unit Price</th>
+                                <th class="small fw-bold text-white text-center" style="width: 8%;">Tax %</th>
+                                <th class="small fw-bold text-white" style="width: 20%;">Description</th>
+                                <th class="small fw-bold text-white text-center" style="width: 10%;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="itemsContainer">
+                            @if (Model.QuotationItems != null && Model.QuotationItems.Any())
+                            {
+                                @foreach (var item in Model.QuotationItems)
+                                {
+                                    <tr class="item-row">
+                                        <td>
+                                            <input type="hidden" name="itemIds" value="@item.Id" />
+                                            <select name="productIds" class="form-select form-select-sm product-select">
+                                                <option value="">-- Select --</option>
+                                                @foreach (var product in products)
+                                                {
+                                                    <option value="@product.Id" 
+                                                            data-price="@product.UnitPrice" 
+                                                            data-tax="@product.TaxRate" 
+                                                            data-mrp="@(product.MRP?.ToString() ?? "")" 
+                                                            data-hsn="@product.HSNCode" 
+                                                            data-description="@(System.Text.Encodings.Web.HtmlEncoder.Default.Encode(product.Description ?? ""))"
+                                                            selected="@(product.Id == item.ProductId ? "selected" : null)">@product.Name</option>
+                                                }
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <input type="number" name="quantities" class="form-control form-control-sm quantity-input text-center" step="0.01" min="0.01" value="@item.Quantity" placeholder="0.00" />
+                                        </td>
+                                        <td>
+                                            <input type="number" name="mrps" class="form-control form-control-sm mrp-input text-center" step="0.01" min="0" value="@(item.MRP?.ToString() ?? "")" placeholder="0.00" />
+                                        </td>
+                                        <td>
+                                            <input type="number" name="unitPrices" class="form-control form-control-sm unitprice-input text-center" step="0.01" min="0" value="@item.UnitPrice" placeholder="0.00" />
+                                        </td>
+                                        <td>
+                                            <input type="number" name="taxRates" class="form-control form-control-sm taxrate-input text-center" step="0.01" min="0" max="100" value="@item.TaxRate" placeholder="0.00" />
+                                        </td>
+                                        <td>
+                                            <input type="text" name="descriptions" class="form-control form-control-sm" value="@item.Description" placeholder="Description" />
+                                        </td>
+                                        <td class="text-center">
+                                            <button type="button" class="btn btn-danger btn-sm remove-item">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr class="item-row">
+                                    <td>
+                                        <select name="productIds" class="form-select form-select-sm product-select">
+                                            <option value="">-- Select --</option>
+                                            @foreach (var product in products)
+                                            {
+                                                <option value="@product.Id" 
+                                                        data-price="@product.UnitPrice" 
+                                                        data-tax="@product.TaxRate" 
+                                                        data-mrp="@(product.MRP?.ToString() ?? "")" 
+                                                        data-hsn="@product.HSNCode" 
+                                                        data-description="@(System.Text.Encodings.Web.HtmlEncoder.Default.Encode(product.Description ?? ""))">@product.Name</option>
+                                            }
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="number" name="quantities" class="form-control form-control-sm quantity-input text-center" step="0.01" min="0.01" placeholder="0.00" />
+                                    </td>
+                                    <td>
+                                        <input type="number" name="mrps" class="form-control form-control-sm mrp-input text-center" step="0.01" min="0" placeholder="0.00" />
+                                    </td>
+                                    <td>
+                                        <input type="number" name="unitPrices" class="form-control form-control-sm unitprice-input text-center" step="0.01" min="0" placeholder="0.00" />
+                                    </td>
+                                    <td>
+                                        <input type="number" name="taxRates" class="form-control form-control-sm taxrate-input text-center" step="0.01" min="0" max="100" placeholder="0.00" />
+                                    </td>
+                                    <td>
+                                        <input type="text" name="descriptions" class="form-control form-control-sm" placeholder="Description" />
+                                    </td>
+                                    <td class="text-center">
+                                        <button type="button" class="btn btn-danger btn-sm remove-item">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Notes & Terms Section -->
+            <div class="mb-2">
+                <h6 class="text-primary border-bottom pb-1 mb-2 small fw-semibold"><i class="bi bi-file-text me-1"></i>Notes & Terms</h6>
+                <div class="row g-2">
+                    <div class="col-md-6">
+                        <label asp-for="Notes" class="form-label small fw-semibold mb-1"></label>
+                        <textarea asp-for="Notes" class="form-control form-control-sm" rows="2">@Model.Notes</textarea>
+                        <span asp-validation-for="Notes" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="TermsConditions" class="form-label small fw-semibold mb-1"></label>
+                        <textarea asp-for="TermsConditions" class="form-control form-control-sm" rows="2">@Model.TermsConditions</textarea>
+                        <span asp-validation-for="TermsConditions" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex justify-content-end gap-2 mt-2 pt-2 border-top">
+                <a asp-action="Index" class="btn btn-secondary btn-sm">
+                    <i class="bi bi-x-circle me-1"></i>Cancel
+                </a>
+                <button type="submit" class="btn btn-primary btn-sm">
+                    <i class="bi bi-check-circle me-1"></i>Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function() {
+            // Completely disable client-side validation
+            $('form').removeData('validator');
+            $('form').removeData('unobtrusiveValidation');
+            $('form').off('submit');
+            
+            // Remove all validation attributes from CustomerId
+            $('select[name="CustomerId"]').removeAttr('data-val data-val-required data-val-range').removeClass('input-validation-error');
+            
+            // Show validation summary only if it has content (server-side errors)
+            var $validationSummary = $('.alert-danger');
+            if ($validationSummary.length) {
+                var summaryText = $validationSummary.html().trim();
+                var textContent = $validationSummary.text().trim();
+                if (textContent === '' || summaryText === '<ul><li style="display:none"></li></ul>') {
+                    $validationSummary.hide();
+                } else {
+                    $validationSummary.show();
+                }
+            }
+            
+            // Build product options HTML
+            var productOptions = '@Html.Raw(string.Join("", products.Select(p => {
+                var desc = (p.Description ?? "").Replace("\\", "\\\\").Replace("\"", "&quot;").Replace("\r", "").Replace("\n", " ");
+                return $"<option value=\"{p.Id}\" data-price=\"{p.UnitPrice}\" data-tax=\"{p.TaxRate}\" data-mrp=\"{p.MRP?.ToString() ?? ""}\" data-hsn=\"{p.HSNCode ?? ""}\" data-description=\"{desc}\">{p.Name}</option>";
+            })))';
+
+            // Handle product selection change - populate fields
+            $(document).on('change', '.product-select', function() {
+                var $row = $(this).closest('tr');
+                var $option = $(this).find('option:selected');
+                if ($option.val()) {
+                    var price = parseFloat($option.data('price')) || 0;
+                    var tax = parseFloat($option.data('tax')) || 0;
+                    var mrp = $option.data('mrp') ? parseFloat($option.data('mrp')) : '';
+                    var description = $option.data('description') || '';
+                    
+                    // Only populate if fields are empty (don't overwrite existing values)
+                    if (!$row.find('.unitprice-input').val()) {
+                        $row.find('.unitprice-input').val(price);
+                    }
+                    if (!$row.find('.taxrate-input').val()) {
+                        $row.find('.taxrate-input').val(tax);
+                    }
+                    if (!$row.find('.mrp-input').val()) {
+                        $row.find('.mrp-input').val(mrp);
+                    }
+                    if (!$row.find('input[name="descriptions"]').val()) {
+                        $row.find('input[name="descriptions"]').val(description);
+                    }
+                } else {
+                    $row.find('.unitprice-input, .taxrate-input, .mrp-input, input[name="descriptions"]').val('');
+                }
+            });
+
+            // Add new row
+            $('#addItem').click(function() {
+                var newRow = $('.item-row').first().clone();
+                newRow.find('select, input').val('');
+                newRow.find('input[type="hidden"][name="itemIds"]').remove(); // Remove itemIds from new rows
+                newRow.find('select').html('<option value="">-- Select --</option>' + productOptions);
+                $('#itemsContainer').append(newRow);
+            });
+
+            // Remove row
+            $(document).on('click', '.remove-item', function() {
+                if ($('.item-row').length > 1) {
+                    $(this).closest('tr').remove();
+                } else {
+                    alert('At least one item row is required.');
+                }
+            });
+
+            // Form validation before submit
+            $('#quotationForm').on('submit', function(e) {
+                var hasValidItem = false;
+                $('.item-row').each(function() {
+                    var productId = $(this).find('select[name="productIds"]').val();
+                    var quantity = $(this).find('input[name="quantities"]').val();
+                    if (productId && productId !== '' && quantity && parseFloat(quantity) > 0) {
+                        hasValidItem = true;
+                        return false; // break loop
+                    }
+                });
+
+                if (!hasValidItem) {
+                    e.preventDefault();
+                    alert('Please add at least one item with a product and quantity.');
+                    return false;
+                }
+                
+                // Clear any client-side validation errors before submit
+                $('.field-validation-error').remove();
+                $('.input-validation-error').removeClass('input-validation-error');
+            });
+        });
+    </script>
+}

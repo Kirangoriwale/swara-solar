@@ -1,0 +1,484 @@
+@model SolarBilling.Models.ServiceVisit
+
+@{
+    ViewData["Title"] = "Service Visit Details";
+}
+
+<div class="page-header d-flex justify-content-between align-items-center mb-3">
+    <h2 class="text-primary mb-0"><i class="bi bi-tools me-2"></i>Service Visit Details</h2>
+    <div>
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning btn-sm">
+            <i class="bi bi-pencil me-1"></i>Edit
+        </a>
+        <a asp-action="Index" class="btn btn-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i>Back to List
+        </a>
+    </div>
+</div>
+
+<div class="card shadow-sm rounded-lg mb-3">
+    <div class="card-body">
+        <h6 class="text-primary border-bottom pb-1 mb-3 small fw-semibold"><i class="bi bi-info-circle me-1"></i>Service Visit Information</h6>
+        <dl class="row mb-0">
+            <dt class="col-sm-3"><i class="bi bi-shield-check me-1"></i>AMC Number</dt>
+            <dd class="col-sm-9"><strong>@Html.DisplayFor(model => model.AMC.AMCNumber)</strong></dd>
+
+            <dt class="col-sm-3"><i class="bi bi-person me-1"></i>Customer</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.AMC.Customer.Name)</dd>
+
+            <dt class="col-sm-3"><i class="bi bi-calendar-check me-1"></i>@Html.DisplayNameFor(model => model.VisitDate)</dt>
+            <dd class="col-sm-9">@Model.VisitDate.ToString("dd MMM yyyy")</dd>
+
+            @if (Model.VisitTime.HasValue)
+            {
+                <dt class="col-sm-3"><i class="bi bi-clock me-1"></i>@Html.DisplayNameFor(model => model.VisitTime)</dt>
+                <dd class="col-sm-9">@Model.VisitTime.Value.ToString(@"hh\:mm")</dd>
+            }
+
+            <dt class="col-sm-3"><i class="bi bi-flag me-1"></i>@Html.DisplayNameFor(model => model.Status)</dt>
+            <dd class="col-sm-9">
+                @if (Model.Status == "Completed")
+                {
+                    <span class="badge bg-success">@Model.Status</span>
+                }
+                else if (Model.Status == "In Progress")
+                {
+                    <span class="badge bg-info">@Model.Status</span>
+                }
+                else if (Model.Status == "Cancelled")
+                {
+                    <span class="badge bg-danger">@Model.Status</span>
+                }
+                else
+                {
+                    <span class="badge bg-warning text-dark">@Model.Status</span>
+                }
+            </dd>
+        </dl>
+    </div>
+</div>
+
+@if (Model.SystemCapacity.HasValue || !string.IsNullOrEmpty(Model.SystemType))
+{
+    <div class="card shadow-sm rounded-lg mb-3">
+        <div class="card-body">
+            <h6 class="text-primary border-bottom pb-1 mb-3 small fw-semibold"><i class="bi bi-lightning-charge me-1"></i>System Information</h6>
+            <dl class="row mb-0">
+                @if (Model.SystemCapacity.HasValue)
+                {
+                    <dt class="col-sm-3">@Html.DisplayNameFor(model => model.SystemCapacity)</dt>
+                    <dd class="col-sm-9">@Model.SystemCapacity.Value.ToString("0.00") kW</dd>
+                }
+                @if (!string.IsNullOrEmpty(Model.SystemType))
+                {
+                    <dt class="col-sm-3">@Html.DisplayNameFor(model => model.SystemType)</dt>
+                    <dd class="col-sm-9">@Html.DisplayFor(model => model.SystemType)</dd>
+                }
+            </dl>
+        </div>
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(Model.PanelCracksDustShadingStatus) || !string.IsNullOrEmpty(Model.MountingStructureRailsTightStatus) || 
+     !string.IsNullOrEmpty(Model.ProperTiltAngleStatus) || !string.IsNullOrEmpty(Model.EarthingConnectionStatus))
+{
+    <div class="card shadow-sm rounded-lg mb-3">
+        <div class="card-body">
+            <h6 class="text-primary border-bottom pb-1 mb-3 small fw-semibold"><i class="bi bi-sun me-1"></i>Solar Panel Inspection</h6>
+            <dl class="row mb-0">
+                @if (!string.IsNullOrEmpty(Model.PanelCracksDustShadingStatus))
+                {
+                    <dt class="col-sm-4">Panel Cracks / Dust / Shading</dt>
+                    <dd class="col-sm-8">
+                        <span class="badge @(Model.PanelCracksDustShadingStatus == "OK" ? "bg-success" : "bg-warning")">@Model.PanelCracksDustShadingStatus</span>
+                        @if (!string.IsNullOrEmpty(Model.PanelCracksDustShadingObservation))
+                        {
+                            <br /><small class="text-muted">@Model.PanelCracksDustShadingObservation</small>
+                        }
+                    </dd>
+                }
+                @if (!string.IsNullOrEmpty(Model.MountingStructureRailsTightStatus))
+                {
+                    <dt class="col-sm-4">Mounting Structure Rails Tight</dt>
+                    <dd class="col-sm-8">
+                        <span class="badge @(Model.MountingStructureRailsTightStatus == "OK" ? "bg-success" : "bg-warning")">@Model.MountingStructureRailsTightStatus</span>
+                        @if (!string.IsNullOrEmpty(Model.MountingStructureRailsTightObservation))
+                        {
+                            <br /><small class="text-muted">@Model.MountingStructureRailsTightObservation</small>
+                        }
+                    </dd>
+                }
+                @if (!string.IsNullOrEmpty(Model.ProperTiltAngleStatus))
+                {
+                    <dt class="col-sm-4">Proper Tilt Angle</dt>
+                    <dd class="col-sm-8">
+                        <span class="badge @(Model.ProperTiltAngleStatus == "Yes" ? "bg-success" : "bg-danger")">@Model.ProperTiltAngleStatus</span>
+                        @if (!string.IsNullOrEmpty(Model.ProperTiltAngleObservation))
+                        {
+                            <br /><small class="text-muted">@Model.ProperTiltAngleObservation</small>
+                        }
+                    </dd>
+                }
+                @if (!string.IsNullOrEmpty(Model.EarthingConnectionStatus))
+                {
+                    <dt class="col-sm-4">Earthing Connection</dt>
+                    <dd class="col-sm-8">
+                        <span class="badge @(Model.EarthingConnectionStatus == "OK" ? "bg-success" : "bg-warning")">@Model.EarthingConnectionStatus</span>
+                        @if (!string.IsNullOrEmpty(Model.EarthingConnectionObservation))
+                        {
+                            <br /><small class="text-muted">@Model.EarthingConnectionObservation</small>
+                        }
+                    </dd>
+                }
+            </dl>
+        </div>
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(Model.InverterOnOffStatus) || !string.IsNullOrEmpty(Model.AcDcConnectionsStatus) || 
+     !string.IsNullOrEmpty(Model.OverheatingCheckStatus) || Model.GenerationDataReading.HasValue)
+{
+    <div class="card shadow-sm rounded-lg mb-3">
+        <div class="card-body">
+            <h6 class="text-primary border-bottom pb-1 mb-3 small fw-semibold"><i class="bi bi-cpu me-1"></i>Inverter Inspection</h6>
+            <dl class="row mb-0">
+                @if (!string.IsNullOrEmpty(Model.InverterOnOffStatus))
+                {
+                    <dt class="col-sm-4">Inverter ON/OFF Status</dt>
+                    <dd class="col-sm-8">
+                        <span class="badge @(Model.InverterOnOffStatus == "OK" ? "bg-success" : "bg-danger")">@Model.InverterOnOffStatus</span>
+                        @if (!string.IsNullOrEmpty(Model.InverterOnOffObservation))
+                        {
+                            <br /><small class="text-muted">@Model.InverterOnOffObservation</small>
+                        }
+                    </dd>
+                }
+                @if (!string.IsNullOrEmpty(Model.AcDcConnectionsStatus))
+                {
+                    <dt class="col-sm-4">AC/DC Connections</dt>
+                    <dd class="col-sm-8">
+                        <span class="badge @(Model.AcDcConnectionsStatus == "OK" ? "bg-success" : "bg-danger")">@Model.AcDcConnectionsStatus</span>
+                        @if (!string.IsNullOrEmpty(Model.AcDcConnectionsObservation))
+                        {
+                            <br /><small class="text-muted">@Model.AcDcConnectionsObservation</small>
+                        }
+                    </dd>
+                }
+                @if (!string.IsNullOrEmpty(Model.OverheatingCheckStatus))
+                {
+                    <dt class="col-sm-4">Overheating Check</dt>
+                    <dd class="col-sm-8">
+                        <span class="badge @(Model.OverheatingCheckStatus == "OK" ? "bg-success" : "bg-danger")">@Model.OverheatingCheckStatus</span>
+                        @if (!string.IsNullOrEmpty(Model.OverheatingCheckObservation))
+                        {
+                            <br /><small class="text-muted">@Model.OverheatingCheckObservation</small>
+                        }
+                    </dd>
+                }
+                @if (Model.GenerationDataReading.HasValue)
+                {
+                    <dt class="col-sm-4">@Html.DisplayNameFor(model => model.GenerationDataReading)</dt>
+                    <dd class="col-sm-8">@Model.GenerationDataReading.Value.ToString("0.00")</dd>
+                }
+            </dl>
+        </div>
+    </div>
+}
+
+@if (Model.BatteryVoltage.HasValue || !string.IsNullOrEmpty(Model.TerminalConnectionsStatus) || 
+     !string.IsNullOrEmpty(Model.WaterLevelStatus) || Model.BatteryTemperature.HasValue)
+{
+    <div class="card shadow-sm rounded-lg mb-3">
+        <div class="card-body">
+            <h6 class="text-primary border-bottom pb-1 mb-3 small fw-semibold"><i class="bi bi-battery-charging me-1"></i>Battery Inspection (For Off-Grid / Hybrid Systems)</h6>
+            <dl class="row mb-0">
+                @if (Model.BatteryVoltage.HasValue)
+                {
+                    <dt class="col-sm-3">@Html.DisplayNameFor(model => model.BatteryVoltage)</dt>
+                    <dd class="col-sm-9">@Model.BatteryVoltage.Value.ToString("0.00") V</dd>
+                }
+                @if (!string.IsNullOrEmpty(Model.TerminalConnectionsStatus))
+                {
+                    <dt class="col-sm-3">Terminal Connections</dt>
+                    <dd class="col-sm-9">
+                        <span class="badge @(Model.TerminalConnectionsStatus == "OK" ? "bg-success" : "bg-warning")">@Model.TerminalConnectionsStatus</span>
+                        @if (!string.IsNullOrEmpty(Model.TerminalConnectionsObservation))
+                        {
+                            <br /><small class="text-muted">@Model.TerminalConnectionsObservation</small>
+                        }
+                    </dd>
+                }
+                @if (!string.IsNullOrEmpty(Model.WaterLevelStatus))
+                {
+                    <dt class="col-sm-3">Water Level (LA Battery)</dt>
+                    <dd class="col-sm-9">
+                        <span class="badge @(Model.WaterLevelStatus == "OK" ? "bg-success" : "bg-warning")">@Model.WaterLevelStatus</span>
+                        @if (!string.IsNullOrEmpty(Model.WaterLevelObservation))
+                        {
+                            <br /><small class="text-muted">@Model.WaterLevelObservation</small>
+                        }
+                    </dd>
+                }
+                @if (Model.BatteryTemperature.HasValue)
+                {
+                    <dt class="col-sm-3">@Html.DisplayNameFor(model => model.BatteryTemperature)</dt>
+                    <dd class="col-sm-9">@Model.BatteryTemperature.Value.ToString("0.00") °C</dd>
+                }
+            </dl>
+        </div>
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(Model.DcWiringStatus) || !string.IsNullOrEmpty(Model.AcWiringStatus) || 
+     !string.IsNullOrEmpty(Model.McbSpdIsolatorStatus) || !string.IsNullOrEmpty(Model.OverloadLooseConnectionStatus))
+{
+    <div class="card shadow-sm rounded-lg mb-3">
+        <div class="card-body">
+            <h6 class="text-primary border-bottom pb-1 mb-3 small fw-semibold"><i class="bi bi-plug me-1"></i>Wiring & Safety</h6>
+            <dl class="row mb-0">
+                @if (!string.IsNullOrEmpty(Model.DcWiringStatus))
+                {
+                    <dt class="col-sm-4">DC Wiring</dt>
+                    <dd class="col-sm-8">
+                        <span class="badge @(Model.DcWiringStatus == "OK" ? "bg-success" : "bg-warning")">@Model.DcWiringStatus</span>
+                        @if (!string.IsNullOrEmpty(Model.DcWiringObservation))
+                        {
+                            <br /><small class="text-muted">@Model.DcWiringObservation</small>
+                        }
+                    </dd>
+                }
+                @if (!string.IsNullOrEmpty(Model.AcWiringStatus))
+                {
+                    <dt class="col-sm-4">AC Wiring</dt>
+                    <dd class="col-sm-8">
+                        <span class="badge @(Model.AcWiringStatus == "OK" ? "bg-success" : "bg-warning")">@Model.AcWiringStatus</span>
+                        @if (!string.IsNullOrEmpty(Model.AcWiringObservation))
+                        {
+                            <br /><small class="text-muted">@Model.AcWiringObservation</small>
+                        }
+                    </dd>
+                }
+                @if (!string.IsNullOrEmpty(Model.McbSpdIsolatorStatus))
+                {
+                    <dt class="col-sm-4">MCB / SPD / Isolator</dt>
+                    <dd class="col-sm-8">
+                        <span class="badge @(Model.McbSpdIsolatorStatus == "OK" ? "bg-success" : "bg-warning")">@Model.McbSpdIsolatorStatus</span>
+                        @if (!string.IsNullOrEmpty(Model.McbSpdIsolatorObservation))
+                        {
+                            <br /><small class="text-muted">@Model.McbSpdIsolatorObservation</small>
+                        }
+                    </dd>
+                }
+                @if (!string.IsNullOrEmpty(Model.OverloadLooseConnectionStatus))
+                {
+                    <dt class="col-sm-4">Overload / Loose Connection</dt>
+                    <dd class="col-sm-8">
+                        <span class="badge @(Model.OverloadLooseConnectionStatus == "No" ? "bg-success" : "bg-danger")">@Model.OverloadLooseConnectionStatus</span>
+                        @if (!string.IsNullOrEmpty(Model.OverloadLooseConnectionObservation))
+                        {
+                            <br /><small class="text-muted">@Model.OverloadLooseConnectionObservation</small>
+                        }
+                    </dd>
+                }
+            </dl>
+        </div>
+    </div>
+}
+
+@if (Model.TodaysGeneration.HasValue || Model.AverageDailyGeneration.HasValue || 
+     !string.IsNullOrEmpty(Model.Shading) || !string.IsNullOrEmpty(Model.SystemOperatingCondition))
+{
+    <div class="card shadow-sm rounded-lg mb-3">
+        <div class="card-body">
+            <h6 class="text-primary border-bottom pb-1 mb-3 small fw-semibold"><i class="bi bi-graph-up me-1"></i>Performance Check</h6>
+            <dl class="row mb-0">
+                @if (Model.TodaysGeneration.HasValue)
+                {
+                    <dt class="col-sm-4">@Html.DisplayNameFor(model => model.TodaysGeneration)</dt>
+                    <dd class="col-sm-8">@Model.TodaysGeneration.Value.ToString("0.00") kWh</dd>
+                }
+                @if (Model.AverageDailyGeneration.HasValue)
+                {
+                    <dt class="col-sm-4">@Html.DisplayNameFor(model => model.AverageDailyGeneration)</dt>
+                    <dd class="col-sm-8">@Model.AverageDailyGeneration.Value.ToString("0.00") kWh</dd>
+                }
+                @if (!string.IsNullOrEmpty(Model.Shading))
+                {
+                    <dt class="col-sm-4">@Html.DisplayNameFor(model => model.Shading)</dt>
+                    <dd class="col-sm-8">
+                        @if (Model.Shading == "None")
+                        {
+                            <span class="badge bg-success">@Model.Shading</span>
+                        }
+                        else if (Model.Shading == "Partial")
+                        {
+                            <span class="badge bg-warning">@Model.Shading</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">@Model.Shading</span>
+                        }
+                    </dd>
+                }
+                @if (!string.IsNullOrEmpty(Model.SystemOperatingCondition))
+                {
+                    <dt class="col-sm-4">@Html.DisplayNameFor(model => model.SystemOperatingCondition)</dt>
+                    <dd class="col-sm-8">
+                        @if (Model.SystemOperatingCondition == "Excellent")
+                        {
+                            <span class="badge bg-success">@Model.SystemOperatingCondition</span>
+                        }
+                        else if (Model.SystemOperatingCondition == "Good")
+                        {
+                            <span class="badge bg-info">@Model.SystemOperatingCondition</span>
+                        }
+                        else if (Model.SystemOperatingCondition == "Average")
+                        {
+                            <span class="badge bg-warning">@Model.SystemOperatingCondition</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">@Model.SystemOperatingCondition</span>
+                        }
+                    </dd>
+                }
+            </dl>
+        </div>
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(Model.RequiredRepairsReplacement))
+{
+    <div class="card shadow-sm rounded-lg mb-3">
+        <div class="card-body">
+            <h6 class="text-primary border-bottom pb-1 mb-2 small fw-semibold"><i class="bi bi-file-text me-1"></i>Final Observation</h6>
+            <p class="mb-0"><strong>Required Repairs / Replacement:</strong></p>
+            <p class="mb-0">@Html.DisplayFor(model => model.RequiredRepairsReplacement)</p>
+        </div>
+    </div>
+}
+
+<div class="card shadow-sm rounded-lg mb-3">
+    <div class="card-body">
+        <h6 class="text-primary border-bottom pb-1 mb-3 small fw-semibold"><i class="bi bi-person-badge me-1"></i>Service Engineer Information</h6>
+        <dl class="row mb-0">
+            <dt class="col-sm-3"><i class="bi bi-person-badge me-1"></i>@Html.DisplayNameFor(model => model.ServiceEngineer)</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.ServiceEngineer)</dd>
+
+            <dt class="col-sm-3"><i class="bi bi-phone me-1"></i>@Html.DisplayNameFor(model => model.EngineerContact)</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.EngineerContact)</dd>
+        </dl>
+    </div>
+</div>
+
+@if (!string.IsNullOrEmpty(Model.WorkDescription))
+{
+    <div class="card shadow-sm rounded-lg mb-3">
+        <div class="card-body">
+            <h6 class="text-primary border-bottom pb-1 mb-2 small fw-semibold"><i class="bi bi-clipboard-check me-1"></i>Work Description</h6>
+            <p class="mb-0">@Html.DisplayFor(model => model.WorkDescription)</p>
+        </div>
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(Model.PartsReplaced))
+{
+    <div class="card shadow-sm rounded-lg mb-3">
+        <div class="card-body">
+            <h6 class="text-primary border-bottom pb-1 mb-2 small fw-semibold"><i class="bi bi-gear me-1"></i>Parts Replaced</h6>
+            <p class="mb-0">@Html.DisplayFor(model => model.PartsReplaced)</p>
+        </div>
+    </div>
+}
+
+<div class="card shadow-sm rounded-lg mb-3">
+    <div class="card-body">
+        <h6 class="text-primary border-bottom pb-1 mb-3 small fw-semibold"><i class="bi bi-currency-dollar me-1"></i>Financial Information</h6>
+        <dl class="row mb-0">
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.PartsCost)</dt>
+            <dd class="col-sm-9">
+                @if (Model.PartsCost.HasValue)
+                {
+                    <text>₹ @Model.PartsCost.Value.ToString("0.00")</text>
+                }
+                else
+                {
+                    <text>-</text>
+                }
+            </dd>
+
+            <dt class="col-sm-3">@Html.DisplayNameFor(model => model.ServiceCharge)</dt>
+            <dd class="col-sm-9">
+                @if (Model.ServiceCharge.HasValue)
+                {
+                    <text>₹ @Model.ServiceCharge.Value.ToString("0.00")</text>
+                }
+                else
+                {
+                    <text>-</text>
+                }
+            </dd>
+
+            <dt class="col-sm-3"><strong>@Html.DisplayNameFor(model => model.TotalAmount)</strong></dt>
+            <dd class="col-sm-9">
+                <strong>
+                    @if (Model.TotalAmount.HasValue)
+                    {
+                        <text>₹ @Model.TotalAmount.Value.ToString("0.00")</text>
+                    }
+                    else
+                    {
+                        <text>-</text>
+                    }
+                </strong>
+            </dd>
+        </dl>
+    </div>
+</div>
+
+@if (Model.NextVisitDate.HasValue)
+{
+    <div class="card shadow-sm rounded-lg mb-3">
+        <div class="card-body">
+            <h6 class="text-primary border-bottom pb-1 mb-2 small fw-semibold"><i class="bi bi-calendar-event me-1"></i>Next Visit Date</h6>
+            <p class="mb-0">@Model.NextVisitDate.Value.ToString("dd MMM yyyy")</p>
+        </div>
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(Model.CustomerFeedback))
+{
+    <div class="card shadow-sm rounded-lg mb-3">
+        <div class="card-body">
+            <h6 class="text-primary border-bottom pb-1 mb-2 small fw-semibold"><i class="bi bi-chat-left-text me-1"></i>Customer Feedback</h6>
+            <p class="mb-0">@Html.DisplayFor(model => model.CustomerFeedback)</p>
+        </div>
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(Model.Remarks))
+{
+    <div class="card shadow-sm rounded-lg mb-3">
+        <div class="card-body">
+            <h6 class="text-primary border-bottom pb-1 mb-2 small fw-semibold"><i class="bi bi-chat-left-text me-1"></i>Remarks</h6>
+            <p class="mb-0">@Html.DisplayFor(model => model.Remarks)</p>
+        </div>
+    </div>
+}
+
+<div class="card shadow-sm rounded-lg">
+    <div class="card-body">
+        <h6 class="text-primary border-bottom pb-1 mb-3 small fw-semibold"><i class="bi bi-clock-history me-1"></i>Audit Information</h6>
+        <dl class="row mb-0">
+            <dt class="col-sm-3"><i class="bi bi-calendar-plus me-1"></i>Created Date</dt>
+            <dd class="col-sm-9">@Model.CreatedDate.ToString("dd MMM yyyy HH:mm")</dd>
+
+            @if (Model.ModifiedDate.HasValue)
+            {
+                <dt class="col-sm-3"><i class="bi bi-calendar-check me-1"></i>Modified Date</dt>
+                <dd class="col-sm-9">@Model.ModifiedDate.Value.ToString("dd MMM yyyy HH:mm")</dd>
+            }
+        </dl>
+    </div>
+</div>
+

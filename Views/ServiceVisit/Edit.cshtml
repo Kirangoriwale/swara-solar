@@ -1,0 +1,519 @@
+@model SolarBilling.Models.ServiceVisit
+@using Microsoft.AspNetCore.Mvc.Rendering
+@using Microsoft.EntityFrameworkCore
+@inject SolarBilling.Data.ApplicationDbContext DbContext
+
+@{
+    ViewData["Title"] = "Edit Service Visit";
+    var amcs = await DbContext.AMCs
+        .Include(a => a.Customer)
+        .OrderBy(a => a.AMCNumber)
+        .ToListAsync();
+}
+
+<div class="page-header d-flex justify-content-between align-items-center mb-2">
+    <h2 class="text-primary mb-0"><i class="bi bi-pencil-square me-2"></i>Edit Service Visit</h2>
+</div>
+
+<div class="card shadow-sm rounded-lg">
+    <div class="card-body p-3">
+        <form asp-action="Edit" id="serviceVisitForm">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 mb-2" role="alert"></div>
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="CreatedDate" />
+            
+            <!-- Service Visit Information Section -->
+            <div class="mb-2">
+                <h6 class="text-primary border-bottom pb-1 mb-2 small fw-semibold"><i class="bi bi-info-circle me-1"></i>Service Visit Information</h6>
+                <div class="row g-2">
+                    <div class="col-md-4">
+                        <label asp-for="AMCId" class="form-label small fw-semibold mb-1"></label>
+                        <select name="AMCId" id="AMCId" class="form-select form-select-sm">
+                            <option value="">-- Select AMC --</option>
+                            @foreach (var amc in amcs)
+                            {
+                                <option value="@amc.Id" selected="@(amc.Id == Model.AMCId)" data-customer="@amc.Customer?.Name">@amc.AMCNumber - @(amc.Customer?.Name ?? "")</option>
+                            }
+                        </select>
+                        <span asp-validation-for="AMCId" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="VisitDate" class="form-label small fw-semibold mb-1"></label>
+                        <input asp-for="VisitDate" class="form-control form-control-sm" type="date" />
+                        <span asp-validation-for="VisitDate" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="VisitTime" class="form-label small fw-semibold mb-1"></label>
+                        <input asp-for="VisitTime" class="form-control form-control-sm" type="time" />
+                        <span asp-validation-for="VisitTime" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Information Section -->
+            <div class="mb-2">
+                <h6 class="text-primary border-bottom pb-1 mb-2 small fw-semibold"><i class="bi bi-lightning-charge me-1"></i>System Information</h6>
+                <div class="row g-2">
+                    <div class="col-md-4">
+                        <label asp-for="SystemCapacity" class="form-label small fw-semibold mb-1"></label>
+                        <input asp-for="SystemCapacity" class="form-control form-control-sm" type="number" step="0.01" />
+                        <span asp-validation-for="SystemCapacity" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="SystemType" class="form-label small fw-semibold mb-1"></label>
+                        <select asp-for="SystemType" class="form-select form-select-sm">
+                            <option value="">-- Select System Type --</option>
+                            <option value="On-Grid">On-Grid</option>
+                            <option value="Off-Grid">Off-Grid</option>
+                            <option value="Hybrid">Hybrid</option>
+                        </select>
+                        <span asp-validation-for="SystemType" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Solar Panel Inspection Section -->
+            <div class="mb-2">
+                <h6 class="text-primary border-bottom pb-1 mb-2 small fw-semibold"><i class="bi bi-sun me-1"></i>Solar Panel Inspection</h6>
+                <div class="row g-2">
+                    <div class="col-md-12">
+                        <label class="form-label small fw-semibold mb-1">Panel Cracks / Dust / Shading</label>
+                        <div class="row g-2">
+                            <div class="col-md-3">
+                                <select asp-for="PanelCracksDustShadingStatus" class="form-select form-select-sm">
+                                    <option value="">-- Select --</option>
+                                    <option value="OK">OK</option>
+                                    <option value="Repair Required">Repair Required</option>
+                                </select>
+                            </div>
+                            <div class="col-md-9">
+                                <input asp-for="PanelCracksDustShadingObservation" class="form-control form-control-sm" placeholder="Observation" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label small fw-semibold mb-1">Mounting Structure Rails Tight</label>
+                        <div class="row g-2">
+                            <div class="col-md-3">
+                                <select asp-for="MountingStructureRailsTightStatus" class="form-select form-select-sm">
+                                    <option value="">-- Select --</option>
+                                    <option value="OK">OK</option>
+                                    <option value="Repair Required">Repair Required</option>
+                                </select>
+                            </div>
+                            <div class="col-md-9">
+                                <input asp-for="MountingStructureRailsTightObservation" class="form-control form-control-sm" placeholder="Observation" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label small fw-semibold mb-1">Proper Tilt Angle</label>
+                        <div class="row g-2">
+                            <div class="col-md-3">
+                                <select asp-for="ProperTiltAngleStatus" class="form-select form-select-sm">
+                                    <option value="">-- Select --</option>
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                </select>
+                            </div>
+                            <div class="col-md-9">
+                                <input asp-for="ProperTiltAngleObservation" class="form-control form-control-sm" placeholder="Observation" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label small fw-semibold mb-1">Earthing Connection</label>
+                        <div class="row g-2">
+                            <div class="col-md-3">
+                                <select asp-for="EarthingConnectionStatus" class="form-select form-select-sm">
+                                    <option value="">-- Select --</option>
+                                    <option value="OK">OK</option>
+                                    <option value="Repair Required">Repair Required</option>
+                                </select>
+                            </div>
+                            <div class="col-md-9">
+                                <input asp-for="EarthingConnectionObservation" class="form-control form-control-sm" placeholder="Observation" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inverter Inspection Section -->
+            <div class="mb-2">
+                <h6 class="text-primary border-bottom pb-1 mb-2 small fw-semibold"><i class="bi bi-cpu me-1"></i>Inverter Inspection</h6>
+                <div class="row g-2">
+                    <div class="col-md-12">
+                        <label class="form-label small fw-semibold mb-1">Inverter ON/OFF Status</label>
+                        <div class="row g-2">
+                            <div class="col-md-3">
+                                <select asp-for="InverterOnOffStatus" class="form-select form-select-sm">
+                                    <option value="">-- Select --</option>
+                                    <option value="OK">OK</option>
+                                    <option value="Issue">Issue</option>
+                                </select>
+                            </div>
+                            <div class="col-md-9">
+                                <input asp-for="InverterOnOffObservation" class="form-control form-control-sm" placeholder="Observation" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label small fw-semibold mb-1">AC/DC Connections</label>
+                        <div class="row g-2">
+                            <div class="col-md-3">
+                                <select asp-for="AcDcConnectionsStatus" class="form-select form-select-sm">
+                                    <option value="">-- Select --</option>
+                                    <option value="OK">OK</option>
+                                    <option value="Issue">Issue</option>
+                                </select>
+                            </div>
+                            <div class="col-md-9">
+                                <input asp-for="AcDcConnectionsObservation" class="form-control form-control-sm" placeholder="Observation" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label small fw-semibold mb-1">Overheating Check</label>
+                        <div class="row g-2">
+                            <div class="col-md-3">
+                                <select asp-for="OverheatingCheckStatus" class="form-select form-select-sm">
+                                    <option value="">-- Select --</option>
+                                    <option value="OK">OK</option>
+                                    <option value="Issue">Issue</option>
+                                </select>
+                            </div>
+                            <div class="col-md-9">
+                                <input asp-for="OverheatingCheckObservation" class="form-control form-control-sm" placeholder="Observation" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="GenerationDataReading" class="form-label small fw-semibold mb-1"></label>
+                        <input asp-for="GenerationDataReading" class="form-control form-control-sm" type="number" step="0.01" />
+                        <span asp-validation-for="GenerationDataReading" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Battery Inspection Section -->
+            <div class="mb-2">
+                <h6 class="text-primary border-bottom pb-1 mb-2 small fw-semibold"><i class="bi bi-battery-charging me-1"></i>Battery Inspection (For Off-Grid / Hybrid Systems)</h6>
+                <div class="row g-2">
+                    <div class="col-md-4">
+                        <label asp-for="BatteryVoltage" class="form-label small fw-semibold mb-1"></label>
+                        <input asp-for="BatteryVoltage" class="form-control form-control-sm" type="number" step="0.01" />
+                        <span asp-validation-for="BatteryVoltage" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label small fw-semibold mb-1">Terminal Connections</label>
+                        <div class="row g-2">
+                            <div class="col-md-3">
+                                <select asp-for="TerminalConnectionsStatus" class="form-select form-select-sm">
+                                    <option value="">-- Select --</option>
+                                    <option value="OK">OK</option>
+                                    <option value="Repair">Repair</option>
+                                </select>
+                            </div>
+                            <div class="col-md-9">
+                                <input asp-for="TerminalConnectionsObservation" class="form-control form-control-sm" placeholder="Observation" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label small fw-semibold mb-1">Water Level (LA Battery)</label>
+                        <div class="row g-2">
+                            <div class="col-md-3">
+                                <select asp-for="WaterLevelStatus" class="form-select form-select-sm">
+                                    <option value="">-- Select --</option>
+                                    <option value="OK">OK</option>
+                                    <option value="Low">Low</option>
+                                </select>
+                            </div>
+                            <div class="col-md-9">
+                                <input asp-for="WaterLevelObservation" class="form-control form-control-sm" placeholder="Observation" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="BatteryTemperature" class="form-label small fw-semibold mb-1"></label>
+                        <input asp-for="BatteryTemperature" class="form-control form-control-sm" type="number" step="0.01" />
+                        <span asp-validation-for="BatteryTemperature" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Wiring & Safety Section -->
+            <div class="mb-2">
+                <h6 class="text-primary border-bottom pb-1 mb-2 small fw-semibold"><i class="bi bi-plug me-1"></i>Wiring & Safety</h6>
+                <div class="row g-2">
+                    <div class="col-md-12">
+                        <label class="form-label small fw-semibold mb-1">DC Wiring</label>
+                        <div class="row g-2">
+                            <div class="col-md-3">
+                                <select asp-for="DcWiringStatus" class="form-select form-select-sm">
+                                    <option value="">-- Select --</option>
+                                    <option value="OK">OK</option>
+                                    <option value="Repair/Replace">Repair/Replace</option>
+                                </select>
+                            </div>
+                            <div class="col-md-9">
+                                <input asp-for="DcWiringObservation" class="form-control form-control-sm" placeholder="Observation" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label small fw-semibold mb-1">AC Wiring</label>
+                        <div class="row g-2">
+                            <div class="col-md-3">
+                                <select asp-for="AcWiringStatus" class="form-select form-select-sm">
+                                    <option value="">-- Select --</option>
+                                    <option value="OK">OK</option>
+                                    <option value="Repair/Replace">Repair/Replace</option>
+                                </select>
+                            </div>
+                            <div class="col-md-9">
+                                <input asp-for="AcWiringObservation" class="form-control form-control-sm" placeholder="Observation" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label small fw-semibold mb-1">MCB / SPD / Isolator</label>
+                        <div class="row g-2">
+                            <div class="col-md-3">
+                                <select asp-for="McbSpdIsolatorStatus" class="form-select form-select-sm">
+                                    <option value="">-- Select --</option>
+                                    <option value="OK">OK</option>
+                                    <option value="Repair/Replace">Repair/Replace</option>
+                                </select>
+                            </div>
+                            <div class="col-md-9">
+                                <input asp-for="McbSpdIsolatorObservation" class="form-control form-control-sm" placeholder="Observation" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label small fw-semibold mb-1">Overload / Loose Connection</label>
+                        <div class="row g-2">
+                            <div class="col-md-3">
+                                <select asp-for="OverloadLooseConnectionStatus" class="form-select form-select-sm">
+                                    <option value="">-- Select --</option>
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                </select>
+                            </div>
+                            <div class="col-md-9">
+                                <input asp-for="OverloadLooseConnectionObservation" class="form-control form-control-sm" placeholder="Observation" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Performance Check Section -->
+            <div class="mb-2">
+                <h6 class="text-primary border-bottom pb-1 mb-2 small fw-semibold"><i class="bi bi-graph-up me-1"></i>Performance Check</h6>
+                <div class="row g-2">
+                    <div class="col-md-4">
+                        <label asp-for="TodaysGeneration" class="form-label small fw-semibold mb-1"></label>
+                        <input asp-for="TodaysGeneration" class="form-control form-control-sm" type="number" step="0.01" />
+                        <span asp-validation-for="TodaysGeneration" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="AverageDailyGeneration" class="form-label small fw-semibold mb-1"></label>
+                        <input asp-for="AverageDailyGeneration" class="form-control form-control-sm" type="number" step="0.01" />
+                        <span asp-validation-for="AverageDailyGeneration" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="Shading" class="form-label small fw-semibold mb-1"></label>
+                        <select asp-for="Shading" class="form-select form-select-sm">
+                            <option value="">-- Select --</option>
+                            <option value="None">None</option>
+                            <option value="Partial">Partial</option>
+                            <option value="Heavy">Heavy</option>
+                        </select>
+                        <span asp-validation-for="Shading" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="SystemOperatingCondition" class="form-label small fw-semibold mb-1"></label>
+                        <select asp-for="SystemOperatingCondition" class="form-select form-select-sm">
+                            <option value="">-- Select --</option>
+                            <option value="Excellent">Excellent</option>
+                            <option value="Good">Good</option>
+                            <option value="Average">Average</option>
+                            <option value="Poor">Poor</option>
+                        </select>
+                        <span asp-validation-for="SystemOperatingCondition" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Final Observation Section -->
+            <div class="mb-2">
+                <h6 class="text-primary border-bottom pb-1 mb-2 small fw-semibold"><i class="bi bi-file-text me-1"></i>Final Observation</h6>
+                <div class="row g-2">
+                    <div class="col-md-12">
+                        <label asp-for="RequiredRepairsReplacement" class="form-label small fw-semibold mb-1">Required Repairs / Replacement</label>
+                        <textarea asp-for="RequiredRepairsReplacement" class="form-control form-control-sm" rows="3"></textarea>
+                        <span asp-validation-for="RequiredRepairsReplacement" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Service Engineer Information Section -->
+            <div class="mb-2">
+                <h6 class="text-primary border-bottom pb-1 mb-2 small fw-semibold"><i class="bi bi-person-badge me-1"></i>Service Engineer Information</h6>
+                <div class="row g-2">
+                    <div class="col-md-6">
+                        <label asp-for="ServiceEngineer" class="form-label small fw-semibold mb-1"></label>
+                        <input asp-for="ServiceEngineer" class="form-control form-control-sm" />
+                        <span asp-validation-for="ServiceEngineer" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="EngineerContact" class="form-label small fw-semibold mb-1"></label>
+                        <input asp-for="EngineerContact" class="form-control form-control-sm" />
+                        <span asp-validation-for="EngineerContact" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Work Details Section -->
+            <div class="mb-2">
+                <h6 class="text-primary border-bottom pb-1 mb-2 small fw-semibold"><i class="bi bi-clipboard-check me-1"></i>Work Details</h6>
+                <div class="row g-2">
+                    <div class="col-md-12">
+                        <label asp-for="WorkDescription" class="form-label small fw-semibold mb-1"></label>
+                        <textarea asp-for="WorkDescription" class="form-control form-control-sm" rows="3"></textarea>
+                        <span asp-validation-for="WorkDescription" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-12">
+                        <label asp-for="PartsReplaced" class="form-label small fw-semibold mb-1"></label>
+                        <textarea asp-for="PartsReplaced" class="form-control form-control-sm" rows="2"></textarea>
+                        <span asp-validation-for="PartsReplaced" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Financial Information Section -->
+            <div class="mb-2">
+                <h6 class="text-primary border-bottom pb-1 mb-2 small fw-semibold"><i class="bi bi-currency-dollar me-1"></i>Financial Information</h6>
+                <div class="row g-2">
+                    <div class="col-md-4">
+                        <label asp-for="PartsCost" class="form-label small fw-semibold mb-1"></label>
+                        <input asp-for="PartsCost" class="form-control form-control-sm" type="number" step="0.01" id="PartsCost" />
+                        <span asp-validation-for="PartsCost" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="ServiceCharge" class="form-label small fw-semibold mb-1"></label>
+                        <input asp-for="ServiceCharge" class="form-control form-control-sm" type="number" step="0.01" id="ServiceCharge" />
+                        <span asp-validation-for="ServiceCharge" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="TotalAmount" class="form-label small fw-semibold mb-1"></label>
+                        <input asp-for="TotalAmount" class="form-control form-control-sm" type="number" step="0.01" id="TotalAmount" readonly />
+                        <span asp-validation-for="TotalAmount" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status & Feedback Section -->
+            <div class="mb-2">
+                <h6 class="text-primary border-bottom pb-1 mb-2 small fw-semibold"><i class="bi bi-flag me-1"></i>Status & Feedback</h6>
+                <div class="row g-2">
+                    <div class="col-md-4">
+                        <label asp-for="Status" class="form-label small fw-semibold mb-1"></label>
+                        <select asp-for="Status" class="form-select form-select-sm">
+                            <option value="Scheduled">Scheduled</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Completed">Completed</option>
+                            <option value="Cancelled">Cancelled</option>
+                        </select>
+                        <span asp-validation-for="Status" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="NextVisitDate" class="form-label small fw-semibold mb-1">
+                            Next Visit Date
+                            <small class="text-muted">(Required when marking as Completed)</small>
+                        </label>
+                        <input asp-for="NextVisitDate" class="form-control form-control-sm" type="date" id="NextVisitDate" />
+                        <span asp-validation-for="NextVisitDate" class="text-danger small"></span>
+                        <small class="text-info d-none" id="nextVisitInfo">
+                            <i class="bi bi-info-circle me-1"></i>A new service visit will be automatically created for this date.
+                        </small>
+                    </div>
+                    <div class="col-md-12">
+                        <label asp-for="CustomerFeedback" class="form-label small fw-semibold mb-1"></label>
+                        <textarea asp-for="CustomerFeedback" class="form-control form-control-sm" rows="2"></textarea>
+                        <span asp-validation-for="CustomerFeedback" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Remarks Section -->
+            <div class="mb-2">
+                <h6 class="text-primary border-bottom pb-1 mb-2 small fw-semibold"><i class="bi bi-chat-left-text me-1"></i>Remarks</h6>
+                <div class="row g-2">
+                    <div class="col-md-12">
+                        <label asp-for="Remarks" class="form-label small fw-semibold mb-1"></label>
+                        <textarea asp-for="Remarks" class="form-control form-control-sm" rows="2"></textarea>
+                        <span asp-validation-for="Remarks" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex justify-content-end gap-2 mt-2 pt-2 border-top">
+                <a asp-action="Index" class="btn btn-secondary btn-sm">
+                    <i class="bi bi-x-circle me-1"></i>Cancel
+                </a>
+                <button type="submit" class="btn btn-primary btn-sm">
+                    <i class="bi bi-check-circle me-1"></i>Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var partsCostInput = document.getElementById('PartsCost');
+            var serviceChargeInput = document.getElementById('ServiceCharge');
+            var totalAmountInput = document.getElementById('TotalAmount');
+            var statusSelect = document.getElementById('Status');
+            var nextVisitDateInput = document.getElementById('NextVisitDate');
+            var nextVisitInfo = document.getElementById('nextVisitInfo');
+            
+            function calculateTotal() {
+                var partsCost = parseFloat(partsCostInput.value) || 0;
+                var serviceCharge = parseFloat(serviceChargeInput.value) || 0;
+                var total = partsCost + serviceCharge;
+                totalAmountInput.value = total.toFixed(2);
+            }
+            
+            function toggleNextVisitInfo() {
+                if (statusSelect && statusSelect.value === 'Completed' && nextVisitInfo) {
+                    nextVisitInfo.classList.remove('d-none');
+                } else if (nextVisitInfo) {
+                    nextVisitInfo.classList.add('d-none');
+                }
+            }
+            
+            if (partsCostInput) {
+                partsCostInput.addEventListener('input', calculateTotal);
+            }
+            if (serviceChargeInput) {
+                serviceChargeInput.addEventListener('input', calculateTotal);
+            }
+            if (statusSelect) {
+                statusSelect.addEventListener('change', toggleNextVisitInfo);
+                toggleNextVisitInfo(); // Check on page load
+            }
+            
+            // Calculate on page load if values exist
+            calculateTotal();
+        });
+    </script>
+}
+

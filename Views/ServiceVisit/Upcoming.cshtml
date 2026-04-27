@@ -1,0 +1,185 @@
+@model IEnumerable<SolarBilling.Models.ServiceVisit>
+
+@{
+    ViewData["Title"] = "Upcoming Service Visits";
+    var today = DateTime.Today;
+    var tomorrow = today.AddDays(1);
+    var nextWeek = today.AddDays(7);
+    var nextMonth = today.AddDays(30);
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">
+        <i class="bi bi-calendar-check text-primary me-2"></i>Upcoming Service Visits
+    </h2>
+    <div>
+        <a asp-action="Create" class="btn btn-primary btn-sm me-2">
+            <i class="bi bi-plus-circle me-1"></i>Create New Service Visit
+        </a>
+        <a asp-action="Index" class="btn btn-secondary btn-sm">
+            <i class="bi bi-list-ul me-1"></i>All Service Visits
+        </a>
+    </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="row mb-3">
+    <div class="col-6 col-md-4 col-lg mb-2">
+        <div class="card border-primary">
+            <div class="card-body text-center p-2">
+                <h6 class="text-muted mb-1 small">Today</h6>
+                <h4 class="mb-0 text-primary">@Model.Count(s => s.VisitDate.Date == today)</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg mb-2">
+        <div class="card border-info">
+            <div class="card-body text-center p-2">
+                <h6 class="text-muted mb-1 small">Tomorrow</h6>
+                <h4 class="mb-0 text-info">@Model.Count(s => s.VisitDate.Date == tomorrow)</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg mb-2">
+        <div class="card border-warning">
+            <div class="card-body text-center p-2">
+                <h6 class="text-muted mb-1 small">This Week</h6>
+                <h4 class="mb-0 text-warning">@Model.Count(s => s.VisitDate >= today && s.VisitDate <= nextWeek)</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg mb-2">
+        <div class="card border-success">
+            <div class="card-body text-center p-2">
+                <h6 class="text-muted mb-1 small">This Month</h6>
+                <h4 class="mb-0 text-success">@Model.Count(s => s.VisitDate >= today && s.VisitDate <= nextMonth)</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg mb-2">
+        <div class="card border-secondary">
+            <div class="card-body text-center p-2">
+                <h6 class="text-muted mb-1 small">Rest of Upcoming</h6>
+                <h4 class="mb-0 text-secondary">@Model.Count(s => s.VisitDate > nextMonth)</h4>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Results Table -->
+<div class="card shadow-sm rounded-lg">
+    <div class="card-body p-0">
+        @if (Model != null && Model.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-primary">
+                        <tr>
+                            <th class="text-white fw-bold">Visit Date</th>
+                            <th class="text-white fw-bold">Visit Time</th>
+                            <th class="text-white fw-bold">AMC Number</th>
+                            <th class="text-white fw-bold">Customer</th>
+                            <th class="text-white fw-bold">Service Engineer</th>
+                            <th class="text-white fw-bold">Engineer Contact</th>
+                            <th class="text-white fw-bold">Status</th>
+                            <th class="text-center text-white fw-bold">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            var isToday = item.VisitDate.Date == today;
+                            var isTomorrow = item.VisitDate.Date == tomorrow;
+                            var isOverdue = item.VisitDate.Date < today;
+                            
+                            <tr class="@(isToday ? "table-warning" : isTomorrow ? "table-info" : isOverdue ? "table-danger" : "")">
+                                <td>
+                                    @if (isToday)
+                                    {
+                                        <span class="badge bg-warning text-dark me-1">Today</span>
+                                    }
+                                    else if (isTomorrow)
+                                    {
+                                        <span class="badge bg-info me-1">Tomorrow</span>
+                                    }
+                                    else if (isOverdue)
+                                    {
+                                        <span class="badge bg-danger me-1">Overdue</span>
+                                    }
+                                    <strong>@item.VisitDate.ToString("dd MMM yyyy")</strong>
+                                    @if (item.VisitDate.Date == today)
+                                    {
+                                        <br /><small class="text-muted">(@((item.VisitDate.Date - today).Days == 0 ? "Today" : item.VisitDate.ToString("dddd")))</small>
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.VisitTime.HasValue)
+                                    {
+                                        <text>@item.VisitTime.Value.ToString(@"hh\:mm")</text>
+                                    }
+                                    else
+                                    {
+                                        <text>-</text>
+                                    }
+                                </td>
+                                <td><strong>@Html.DisplayFor(modelItem => item.AMC.AMCNumber)</strong></td>
+                                <td>@Html.DisplayFor(modelItem => item.AMC.Customer.Name)</td>
+                                <td>@Html.DisplayFor(modelItem => item.ServiceEngineer)</td>
+                                <td>@Html.DisplayFor(modelItem => item.EngineerContact)</td>
+                                <td>
+                                    @if (item.Status == "Completed")
+                                    {
+                                        <span class="badge bg-success">@item.Status</span>
+                                    }
+                                    else if (item.Status == "In Progress")
+                                    {
+                                        <span class="badge bg-info">@item.Status</span>
+                                    }
+                                    else if (item.Status == "Cancelled")
+                                    {
+                                        <span class="badge bg-danger">@item.Status</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning text-dark">@item.Status</span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    <div class="btn-group" role="group">
+                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info" title="View Details">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning" title="Edit">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="bi bi-calendar-x display-4 text-muted"></i>
+                <p class="text-muted mt-3">
+                    No upcoming service visits found. <a asp-action="Create">Create a new service visit</a> to get started.
+                </p>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Legend -->
+<div class="mt-3">
+    <small class="text-muted">
+        <i class="bi bi-info-circle me-1"></i>
+        <strong>Legend:</strong>
+        <span class="badge bg-warning text-dark ms-2">Today</span>
+        <span class="badge bg-info ms-1">Tomorrow</span>
+        <span class="badge bg-danger ms-1">Overdue</span>
+    </small>
+</div>
+

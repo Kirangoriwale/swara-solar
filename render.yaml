@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: solarbilling
+    env: dotnet
+    plan: free
+    branch: main
+    buildCommand: dotnet restore && dotnet build -c Release
+    startCommand: dotnet ef database update && dotnet run --no-build --configuration Release --urls http://0.0.0.0:$PORT
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: ConnectionStrings__DefaultConnection
+        sync: false
