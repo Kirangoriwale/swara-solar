@@ -28,5 +28,7 @@ dotnet ef database update
 5. Deploy.
 
 Render uses:
-- build: `dotnet restore && dotnet build -c Release`
-- start: `dotnet ef database update && dotnet run --no-build --configuration Release --urls http://0.0.0.0:$PORT`
+- build: `dotnet restore && dotnet publish -c Release -o publish`
+- start: `dotnet ./publish/SolarBilling.dll`
+
+Database migrations are applied by the app on startup via EF Core `Database.Migrate()`.
