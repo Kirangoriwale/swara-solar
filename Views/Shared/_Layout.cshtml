@@ -10,6 +10,21 @@
     <link rel="stylesheet" href="~/SolarBilling.styles.css" asp-append-version="true" />
 </head>
 <body>
+    @{
+        var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? string.Empty;
+        var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? string.Empty;
+
+        string ActiveNavClass(string controller, string? action = null)
+        {
+            if (!string.Equals(currentController, controller, StringComparison.OrdinalIgnoreCase))
+                return string.Empty;
+
+            if (string.IsNullOrEmpty(action))
+                return "active";
+
+            return string.Equals(currentAction, action, StringComparison.OrdinalIgnoreCase) ? "active" : string.Empty;
+        }
+    }
     <div class="app-shell">
         <aside class="sidebar-nav">
             <div class="sidebar-brand">
@@ -18,15 +33,15 @@
                 </a>
             </div>
             <nav class="sidebar-menu">
-                <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index"><i class="bi bi-house-door me-2"></i>Home</a>
-                <a class="nav-link" asp-area="" asp-controller="Company" asp-action="Index"><i class="bi bi-building me-2"></i>Company</a>
-                <a class="nav-link" asp-area="" asp-controller="Customer" asp-action="Index"><i class="bi bi-people me-2"></i>Customers</a>
-                <a class="nav-link" asp-area="" asp-controller="Product" asp-action="Index"><i class="bi bi-box-seam me-2"></i>Products</a>
-                <a class="nav-link" asp-area="" asp-controller="Quotation" asp-action="Index"><i class="bi bi-file-earmark-text me-2"></i>Quotations</a>
-                <a class="nav-link" asp-area="" asp-controller="Invoice" asp-action="Index"><i class="bi bi-receipt me-2"></i>Invoices</a>
-                <a class="nav-link" asp-area="" asp-controller="AMC" asp-action="Index"><i class="bi bi-shield-check me-2"></i>AMC Management</a>
-                <a class="nav-link" asp-area="" asp-controller="ServiceVisit" asp-action="Index"><i class="bi bi-tools me-2"></i>Service Visits</a>
-                <a class="nav-link" asp-area="" asp-controller="ServiceVisit" asp-action="Upcoming"><i class="bi bi-calendar-check me-2"></i>Upcoming Visits</a>
+                <a class="nav-link @ActiveNavClass("Home", "Index")" asp-area="" asp-controller="Home" asp-action="Index"><i class="bi bi-house-door me-2"></i>Home</a>
+                <a class="nav-link @ActiveNavClass("Company")" asp-area="" asp-controller="Company" asp-action="Index"><i class="bi bi-building me-2"></i>Company</a>
+                <a class="nav-link @ActiveNavClass("Customer")" asp-area="" asp-controller="Customer" asp-action="Index"><i class="bi bi-people me-2"></i>Customers</a>
+                <a class="nav-link @ActiveNavClass("Product")" asp-area="" asp-controller="Product" asp-action="Index"><i class="bi bi-box-seam me-2"></i>Products</a>
+                <a class="nav-link @ActiveNavClass("Quotation")" asp-area="" asp-controller="Quotation" asp-action="Index"><i class="bi bi-file-earmark-text me-2"></i>Quotations</a>
+                <a class="nav-link @ActiveNavClass("Invoice")" asp-area="" asp-controller="Invoice" asp-action="Index"><i class="bi bi-receipt me-2"></i>Invoices</a>
+                <a class="nav-link @ActiveNavClass("AMC")" asp-area="" asp-controller="AMC" asp-action="Index"><i class="bi bi-shield-check me-2"></i>AMC Management</a>
+                <a class="nav-link @ActiveNavClass("ServiceVisit", "Index")" asp-area="" asp-controller="ServiceVisit" asp-action="Index"><i class="bi bi-tools me-2"></i>Service Visits</a>
+                <a class="nav-link @ActiveNavClass("ServiceVisit", "Upcoming")" asp-area="" asp-controller="ServiceVisit" asp-action="Upcoming"><i class="bi bi-calendar-check me-2"></i>Upcoming Visits</a>
             </nav>
         </aside>
         <div class="content-shell">
@@ -48,15 +63,15 @@
                 </div>
                 <div class="offcanvas-body">
                     <nav class="sidebar-menu">
-                        <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index"><i class="bi bi-house-door me-2"></i>Home</a>
-                        <a class="nav-link" asp-area="" asp-controller="Company" asp-action="Index"><i class="bi bi-building me-2"></i>Company</a>
-                        <a class="nav-link" asp-area="" asp-controller="Customer" asp-action="Index"><i class="bi bi-people me-2"></i>Customers</a>
-                        <a class="nav-link" asp-area="" asp-controller="Product" asp-action="Index"><i class="bi bi-box-seam me-2"></i>Products</a>
-                        <a class="nav-link" asp-area="" asp-controller="Quotation" asp-action="Index"><i class="bi bi-file-earmark-text me-2"></i>Quotations</a>
-                        <a class="nav-link" asp-area="" asp-controller="Invoice" asp-action="Index"><i class="bi bi-receipt me-2"></i>Invoices</a>
-                        <a class="nav-link" asp-area="" asp-controller="AMC" asp-action="Index"><i class="bi bi-shield-check me-2"></i>AMC Management</a>
-                        <a class="nav-link" asp-area="" asp-controller="ServiceVisit" asp-action="Index"><i class="bi bi-tools me-2"></i>Service Visits</a>
-                        <a class="nav-link" asp-area="" asp-controller="ServiceVisit" asp-action="Upcoming"><i class="bi bi-calendar-check me-2"></i>Upcoming Visits</a>
+                        <a class="nav-link @ActiveNavClass("Home", "Index")" asp-area="" asp-controller="Home" asp-action="Index" data-bs-dismiss="offcanvas"><i class="bi bi-house-door me-2"></i>Home</a>
+                        <a class="nav-link @ActiveNavClass("Company")" asp-area="" asp-controller="Company" asp-action="Index" data-bs-dismiss="offcanvas"><i class="bi bi-building me-2"></i>Company</a>
+                        <a class="nav-link @ActiveNavClass("Customer")" asp-area="" asp-controller="Customer" asp-action="Index" data-bs-dismiss="offcanvas"><i class="bi bi-people me-2"></i>Customers</a>
+                        <a class="nav-link @ActiveNavClass("Product")" asp-area="" asp-controller="Product" asp-action="Index" data-bs-dismiss="offcanvas"><i class="bi bi-box-seam me-2"></i>Products</a>
+                        <a class="nav-link @ActiveNavClass("Quotation")" asp-area="" asp-controller="Quotation" asp-action="Index" data-bs-dismiss="offcanvas"><i class="bi bi-file-earmark-text me-2"></i>Quotations</a>
+                        <a class="nav-link @ActiveNavClass("Invoice")" asp-area="" asp-controller="Invoice" asp-action="Index" data-bs-dismiss="offcanvas"><i class="bi bi-receipt me-2"></i>Invoices</a>
+                        <a class="nav-link @ActiveNavClass("AMC")" asp-area="" asp-controller="AMC" asp-action="Index" data-bs-dismiss="offcanvas"><i class="bi bi-shield-check me-2"></i>AMC Management</a>
+                        <a class="nav-link @ActiveNavClass("ServiceVisit", "Index")" asp-area="" asp-controller="ServiceVisit" asp-action="Index" data-bs-dismiss="offcanvas"><i class="bi bi-tools me-2"></i>Service Visits</a>
+                        <a class="nav-link @ActiveNavClass("ServiceVisit", "Upcoming")" asp-area="" asp-controller="ServiceVisit" asp-action="Upcoming" data-bs-dismiss="offcanvas"><i class="bi bi-calendar-check me-2"></i>Upcoming Visits</a>
                     </nav>
                 </div>
             </div>
@@ -67,21 +82,20 @@
                     </main>
                 </div>
             </div>
+            <footer class="border-top footer text-muted">
+                <div class="container">
+                    <div class="row align-items-center">
+                        <div class="col-md-6 text-center text-md-start footer-note">
+                            &copy; 2026 - SolarBilling - All Rights Reserved | Developed by <a href="https://www.linkedin.com/in/kiran-goriwale-9a6a19193/" target="_blank" class="text-decoration-none">Kiran Goriwale - 9892140241</a>
+                        </div>
+                        <div class="col-md-6 text-center text-md-end">
+                            <a asp-area="" asp-controller="Home" asp-action="Privacy" class="text-decoration-none">Privacy Policy</a>
+                        </div>
+                    </div>
+                </div>
+            </footer>
         </div>
     </div>
-
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-md-6 text-center text-md-start footer-note">
-                    &copy; 2026 - SolarBilling - All Rights Reserved | Developed by <a href="https://www.linkedin.com/in/kiran-goriwale-9a6a19193/" target="_blank" class="text-decoration-none">Kiran Goriwale - 9892140241</a>
-                </div>
-                <div class="col-md-6 text-center text-md-end">
-                    <a asp-area="" asp-controller="Home" asp-action="Privacy" class="text-decoration-none">Privacy Policy</a>
-                </div>
-            </div>
-        </div>
-    </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

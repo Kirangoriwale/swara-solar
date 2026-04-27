@@ -34,7 +34,6 @@ html {
 }
 
 html, body {
-    height: 100%;
     margin: 0;
     padding: 0;
 }
@@ -45,6 +44,7 @@ body {
     color: var(--text-primary);
     display: flex;
     flex-direction: column;
+    min-height: 100vh;
 }
 
 .main-content-wrapper {
@@ -52,8 +52,7 @@ body {
     display: flex;
     flex-direction: column;
     width: 100%;
-    overflow-y: auto;
-    overflow-x: hidden;
+    overflow: visible;
 }
 
 /* App shell with left navigation */
@@ -104,11 +103,18 @@ body {
     transform: translateX(3px);
 }
 
+.sidebar-menu .nav-link.active {
+    color: #fff !important;
+    background-color: rgba(255, 255, 255, 0.3);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25);
+}
+
 .content-shell {
     flex: 1;
     display: flex;
     flex-direction: column;
     min-width: 0;
+    min-height: 100vh;
 }
 
 .topbar-mobile {
@@ -564,6 +570,26 @@ h2 i {
 
     .app-content-container {
         width: calc(100% - 1rem);
+    }
+
+    .main-content-wrapper {
+        overflow: visible;
+    }
+
+    .offcanvas .sidebar-menu .nav-link {
+        color: var(--text-primary) !important;
+        background: transparent;
+    }
+
+    .offcanvas .sidebar-menu .nav-link:hover {
+        background: #f3f4f6;
+        color: #111827 !important;
+    }
+
+    .offcanvas .sidebar-menu .nav-link.active {
+        background: #e5e7eb;
+        color: #111827 !important;
+        font-weight: 600;
     }
     
     .card-body {
