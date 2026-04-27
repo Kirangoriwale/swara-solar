@@ -88,8 +88,8 @@ namespace SolarBilling.Controllers
             
             var quotation = new Quotation
             {
-                QuotationDate = DateTime.Now,
-                ValidUntil = DateTime.Now.AddDays(30),
+                QuotationDate = DateTime.UtcNow,
+                ValidUntil = DateTime.UtcNow.AddDays(30),
                 QuotationNumber = GenerateQuotationNumber()
             };
             
@@ -166,7 +166,7 @@ namespace SolarBilling.Controllers
             {
                 try
                 {
-                    quotation.CreatedDate = DateTime.Now;
+                    quotation.CreatedDate = DateTime.UtcNow;
                     _context.Add(quotation);
                     await _context.SaveChangesAsync();
 
@@ -199,7 +199,7 @@ namespace SolarBilling.Controllers
                     quotation.Subtotal = subtotal;
                     quotation.TaxAmount = taxAmount;
                     quotation.TotalAmount = subtotal + taxAmount;
-                    quotation.ModifiedDate = DateTime.Now;
+                    quotation.ModifiedDate = DateTime.UtcNow;
 
                     await _context.SaveChangesAsync();
                     return RedirectToAction(nameof(Index));
@@ -345,7 +345,7 @@ namespace SolarBilling.Controllers
                     quotation.Subtotal = subtotal;
                     quotation.TaxAmount = taxAmount;
                     quotation.TotalAmount = subtotal + taxAmount;
-                    quotation.ModifiedDate = DateTime.Now;
+                    quotation.ModifiedDate = DateTime.UtcNow;
 
                     _context.Update(quotation);
                     await _context.SaveChangesAsync();
@@ -435,8 +435,8 @@ namespace SolarBilling.Controllers
 
         private string GenerateQuotationNumber()
         {
-            var year = DateTime.Now.Year;
-            var month = DateTime.Now.Month.ToString("00");
+            var year = DateTime.UtcNow.Year;
+            var month = DateTime.UtcNow.Month.ToString("00");
             var lastQuotation = _context.Quotations
                 .Where(q => q.QuotationNumber.StartsWith($"QUO-{year}{month}-"))
                 .OrderByDescending(q => q.QuotationNumber)

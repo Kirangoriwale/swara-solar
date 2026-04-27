@@ -15,7 +15,7 @@ namespace SolarBilling.Models
         [Required]
         [Display(Name = "Invoice Date")]
         [DataType(DataType.Date)]
-        public DateTime InvoiceDate { get; set; } = DateTime.Now;
+        public DateTime InvoiceDate { get; set; } = DateTime.UtcNow;
 
         [Display(Name = "Customer")]
         public int CustomerId { get; set; }
@@ -48,7 +48,7 @@ namespace SolarBilling.Models
         [StringLength(2000)]
         public string? TermsConditions { get; set; }
 
-        public DateTime CreatedDate { get; set; } = DateTime.Now;
+        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
         public DateTime? ModifiedDate { get; set; }
 
         // Navigation properties

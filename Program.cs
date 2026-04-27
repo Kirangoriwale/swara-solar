@@ -8,7 +8,8 @@ builder.Services.AddControllersWithViews();
 
 var connectionString =
     builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection");
+    ?? Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection")
+    ?? Environment.GetEnvironmentVariable("DATABASE_URL");
 
 if (string.IsNullOrWhiteSpace(connectionString))
 {
@@ -37,10 +38,31 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-using (var scope = app.Services.CreateScope())
+var runMigrations = app.Environment.IsDevelopment()
+    || string.Equals(
+        builder.Configuration["RunMigrationsOnStartup"],
+        "true",
+        StringComparison.OrdinalIgnoreCase)
+    || string.Equals(
+        Environment.GetEnvironmentVariable("RUN_MIGRATIONS_ON_STARTUP"),
+        "true",
+        StringComparison.OrdinalIgnoreCase);
+
+if (runMigrations)
 {
-    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    dbContext.Database.Migrate();
+    using var scope = app.Services.CreateScope();
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+    try
+    {
+        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        dbContext.Database.Migrate();
+        logger.LogInformation("Database migrations executed on startup.");
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "Database migration on startup failed.");
+        throw;
+    }
 }
 
 app.Run();

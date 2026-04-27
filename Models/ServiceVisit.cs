@@ -14,7 +14,7 @@ namespace SolarBilling.Models
         [Required]
         [Display(Name = "Visit Date")]
         [DataType(DataType.Date)]
-        public DateTime VisitDate { get; set; } = DateTime.Now;
+        public DateTime VisitDate { get; set; } = DateTime.UtcNow;
 
         [Display(Name = "Visit Time")]
         [DataType(DataType.Time)]
@@ -215,7 +215,7 @@ namespace SolarBilling.Models
         [StringLength(2000)]
         public string? RequiredRepairsReplacement { get; set; }
 
-        public DateTime CreatedDate { get; set; } = DateTime.Now;
+        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
         public DateTime? ModifiedDate { get; set; }
 
         // Navigation properties

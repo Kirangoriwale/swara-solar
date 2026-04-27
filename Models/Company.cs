@@ -90,7 +90,7 @@ namespace SolarBilling.Models
         [Display(Name = "Is Default")]
         public bool IsDefault { get; set; } = false;
 
-        public DateTime CreatedDate { get; set; } = DateTime.Now;
+        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
         public DateTime? ModifiedDate { get; set; }
     }
 }

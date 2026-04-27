@@ -88,7 +88,7 @@ namespace SolarBilling.Controllers
             
             var invoice = new Invoice
             {
-                InvoiceDate = DateTime.Now,
+                InvoiceDate = DateTime.UtcNow,
                 InvoiceNumber = GenerateInvoiceNumber()
             };
             
@@ -165,7 +165,7 @@ namespace SolarBilling.Controllers
             {
                 try
                 {
-                    invoice.CreatedDate = DateTime.Now;
+                    invoice.CreatedDate = DateTime.UtcNow;
                     _context.Add(invoice);
                     await _context.SaveChangesAsync();
 
@@ -198,7 +198,7 @@ namespace SolarBilling.Controllers
                     invoice.Subtotal = subtotal;
                     invoice.TaxAmount = taxAmount;
                     invoice.TotalAmount = subtotal + taxAmount;
-                    invoice.ModifiedDate = DateTime.Now;
+                    invoice.ModifiedDate = DateTime.UtcNow;
 
                     await _context.SaveChangesAsync();
                     return RedirectToAction(nameof(Index));
@@ -344,7 +344,7 @@ namespace SolarBilling.Controllers
                     invoice.Subtotal = subtotal;
                     invoice.TaxAmount = taxAmount;
                     invoice.TotalAmount = subtotal + taxAmount;
-                    invoice.ModifiedDate = DateTime.Now;
+                    invoice.ModifiedDate = DateTime.UtcNow;
 
                     _context.Update(invoice);
                     await _context.SaveChangesAsync();
@@ -434,8 +434,8 @@ namespace SolarBilling.Controllers
 
         private string GenerateInvoiceNumber()
         {
-            var year = DateTime.Now.Year;
-            var month = DateTime.Now.Month.ToString("00");
+            var year = DateTime.UtcNow.Year;
+            var month = DateTime.UtcNow.Month.ToString("00");
             var lastInvoice = _context.Invoices
                 .Where(i => i.InvoiceNumber.StartsWith($"INV-{year}{month}-"))
                 .OrderByDescending(i => i.InvoiceNumber)

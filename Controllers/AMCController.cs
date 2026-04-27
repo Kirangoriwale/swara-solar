@@ -52,8 +52,8 @@ namespace SolarBilling.Controllers
             var amc = new AMC
             {
                 AMCNumber = GenerateAMCNumber(),
-                StartDate = DateTime.Now,
-                EndDate = DateTime.Now.AddYears(1),
+                StartDate = DateTime.UtcNow,
+                EndDate = DateTime.UtcNow.AddYears(1),
                 Status = "Active"
             };
             
@@ -86,7 +86,7 @@ namespace SolarBilling.Controllers
 
             if (ModelState.IsValid)
             {
-                amc.CreatedDate = DateTime.Now;
+                amc.CreatedDate = DateTime.UtcNow;
                 _context.Add(amc);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -147,7 +147,7 @@ namespace SolarBilling.Controllers
             {
                 try
                 {
-                    amc.ModifiedDate = DateTime.Now;
+                    amc.ModifiedDate = DateTime.UtcNow;
                     _context.Update(amc);
                     await _context.SaveChangesAsync();
                 }
@@ -231,8 +231,8 @@ namespace SolarBilling.Controllers
 
         private string GenerateAMCNumber()
         {
-            var year = DateTime.Now.Year;
-            var month = DateTime.Now.Month.ToString("00");
+            var year = DateTime.UtcNow.Year;
+            var month = DateTime.UtcNow.Month.ToString("00");
             var lastAMC = _context.AMCs
                 .Where(a => a.AMCNumber.StartsWith($"AMC-{year}{month}-"))
                 .OrderByDescending(a => a.AMCNumber)

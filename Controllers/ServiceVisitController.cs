@@ -128,7 +128,7 @@ namespace SolarBilling.Controllers
 
             if (ModelState.IsValid)
             {
-                serviceVisit.CreatedDate = DateTime.Now;
+                serviceVisit.CreatedDate = DateTime.UtcNow;
                 _context.Add(serviceVisit);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -209,7 +209,7 @@ namespace SolarBilling.Controllers
                                                    originalVisit.Status != "Completed" && 
                                                    serviceVisit.Status == "Completed";
 
-                    serviceVisit.ModifiedDate = DateTime.Now;
+                    serviceVisit.ModifiedDate = DateTime.UtcNow;
                     _context.Update(serviceVisit);
                     await _context.SaveChangesAsync();
 
@@ -224,7 +224,7 @@ namespace SolarBilling.Controllers
                             Status = "Scheduled",
                             ServiceEngineer = serviceVisit.ServiceEngineer, // Copy engineer info
                             EngineerContact = serviceVisit.EngineerContact,
-                            CreatedDate = DateTime.Now,
+                            CreatedDate = DateTime.UtcNow,
                             Remarks = $"Auto-created from completed visit #{serviceVisit.Id}"
                         };
                         

@@ -31,4 +31,12 @@ Render uses:
 - build: `dotnet restore && dotnet publish -c Release -o publish`
 - start: `dotnet ./publish/SolarBilling.dll`
 
-Database migrations are applied by the app on startup via EF Core `Database.Migrate()`.
+By default, production startup does not auto-run migrations.
+Run migrations manually when needed:
+
+```powershell
+dotnet ef database update
+```
+
+If you want startup migrations in a specific environment, set:
+- `RUN_MIGRATIONS_ON_STARTUP=true`

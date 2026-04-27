@@ -8,4 +8,4 @@ RUN dotnet publish SolarBilling.csproj -c Release -o /app/publish
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 COPY --from=build /app/publish .
-ENTRYPOINT ["dotnet", "SolarBilling.dll"]
+CMD ["sh", "-c", "dotnet SolarBilling.dll --urls http://0.0.0.0:${PORT:-10000}"]

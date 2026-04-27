@@ -20,6 +20,53 @@ namespace SolarBilling.Data
         public DbSet<AMC> AMCs { get; set; }
         public DbSet<ServiceVisit> ServiceVisits { get; set; }
 
+        public override int SaveChanges(bool acceptAllChangesOnSuccess)
+        {
+            NormalizeDateTimeValues();
+            return base.SaveChanges(acceptAllChangesOnSuccess);
+        }
+
+        public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+        {
+            NormalizeDateTimeValues();
+            return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+        }
+
+        private void NormalizeDateTimeValues()
+        {
+            foreach (var entry in ChangeTracker.Entries().Where(e =>
+                         e.State == EntityState.Added || e.State == EntityState.Modified))
+            {
+                foreach (var property in entry.Properties)
+                {
+                    if (property.Metadata.ClrType == typeof(DateTime))
+                    {
+                        if (property.CurrentValue is DateTime dtValue)
+                        {
+                            property.CurrentValue = ToUtc(dtValue);
+                        }
+                    }
+                    else if (property.Metadata.ClrType == typeof(DateTime?))
+                    {
+                        if (property.CurrentValue is DateTime nullableDtValue)
+                        {
+                            property.CurrentValue = ToUtc(nullableDtValue);
+                        }
+                    }
+                }
+            }
+        }
+
+        private static DateTime ToUtc(DateTime value)
+        {
+            return value.Kind switch
+            {
+                DateTimeKind.Utc => value,
+                DateTimeKind.Local => value.ToUniversalTime(),
+                _ => DateTime.SpecifyKind(value, DateTimeKind.Utc)
+            };
+        }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

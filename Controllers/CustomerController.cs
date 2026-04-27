@@ -51,7 +51,7 @@ namespace SolarBilling.Controllers
         {
             if (ModelState.IsValid)
             {
-                customer.CreatedDate = DateTime.Now;
+                customer.CreatedDate = DateTime.UtcNow;
                 _context.Add(customer);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -89,7 +89,7 @@ namespace SolarBilling.Controllers
             {
                 try
                 {
-                    customer.ModifiedDate = DateTime.Now;
+                    customer.ModifiedDate = DateTime.UtcNow;
                     _context.Update(customer);
                     await _context.SaveChangesAsync();
                 }

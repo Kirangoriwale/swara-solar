@@ -15,12 +15,12 @@ namespace SolarBilling.Models
         [Required]
         [Display(Name = "Quotation Date")]
         [DataType(DataType.Date)]
-        public DateTime QuotationDate { get; set; } = DateTime.Now;
+        public DateTime QuotationDate { get; set; } = DateTime.UtcNow;
 
         [Required]
         [Display(Name = "Valid Until")]
         [DataType(DataType.Date)]
-        public DateTime ValidUntil { get; set; } = DateTime.Now.AddDays(30);
+        public DateTime ValidUntil { get; set; } = DateTime.UtcNow.AddDays(30);
 
         [Display(Name = "Customer")]
         public int CustomerId { get; set; }
@@ -49,7 +49,7 @@ namespace SolarBilling.Models
         [StringLength(20)]
         public string Status { get; set; } = "Draft"; // Draft, Sent, Accepted, Rejected
 
-        public DateTime CreatedDate { get; set; } = DateTime.Now;
+        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
         public DateTime? ModifiedDate { get; set; }
 
         // Navigation properties

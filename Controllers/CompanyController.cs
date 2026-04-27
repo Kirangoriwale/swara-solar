@@ -61,7 +61,7 @@ namespace SolarBilling.Controllers
                     }
                 }
 
-                company.CreatedDate = DateTime.Now;
+                company.CreatedDate = DateTime.UtcNow;
                 _context.Add(company);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -109,7 +109,7 @@ namespace SolarBilling.Controllers
                         }
                     }
 
-                    company.ModifiedDate = DateTime.Now;
+                    company.ModifiedDate = DateTime.UtcNow;
                     _context.Update(company);
                     await _context.SaveChangesAsync();
                 }

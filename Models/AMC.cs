@@ -19,12 +19,12 @@ namespace SolarBilling.Models
         [Required]
         [Display(Name = "Start Date")]
         [DataType(DataType.Date)]
-        public DateTime StartDate { get; set; } = DateTime.Now;
+        public DateTime StartDate { get; set; } = DateTime.UtcNow;
 
         [Required]
         [Display(Name = "End Date")]
         [DataType(DataType.Date)]
-        public DateTime EndDate { get; set; } = DateTime.Now.AddYears(1);
+        public DateTime EndDate { get; set; } = DateTime.UtcNow.AddYears(1);
 
         [Display(Name = "AMC Amount")]
         [Column(TypeName = "decimal(18,2)")]
@@ -66,7 +66,7 @@ namespace SolarBilling.Models
         [StringLength(500)]
         public string? ServiceAddress { get; set; }
 
-        public DateTime CreatedDate { get; set; } = DateTime.Now;
+        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
         public DateTime? ModifiedDate { get; set; }
 
         // Navigation properties

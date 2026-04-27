@@ -78,7 +78,7 @@ namespace SolarBilling.Models
         [StringLength(10)]
         public string? PAN { get; set; }
 
-        public DateTime CreatedDate { get; set; } = DateTime.Now;
+        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
         public DateTime? ModifiedDate { get; set; }
 
         // Navigation properties
