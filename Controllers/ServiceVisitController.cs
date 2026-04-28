@@ -126,6 +126,11 @@ namespace SolarBilling.Controllers
                 serviceVisit.TotalAmount = (serviceVisit.PartsCost ?? 0) + (serviceVisit.ServiceCharge ?? 0);
             }
 
+            if (serviceVisit.NextVisitDate.HasValue && serviceVisit.NextVisitDate.Value.Date < serviceVisit.VisitDate.Date)
+            {
+                ModelState.AddModelError("NextVisitDate", "Next visit date must be on or after the current visit date.");
+            }
+
             if (ModelState.IsValid)
             {
                 serviceVisit.CreatedDate = DateTime.UtcNow;
@@ -216,10 +221,17 @@ namespace SolarBilling.Controllers
                     // If status changed to Completed and NextVisitDate is set, create a new Service Visit
                     if (statusChangedToCompleted && serviceVisit.NextVisitDate.HasValue)
                     {
+                        var nextVisitDate = serviceVisit.NextVisitDate.Value.Date;
+                        if (nextVisitDate < DateTime.UtcNow.Date)
+                        {
+                            TempData["ErrorMessage"] = "Completed visit saved, but the next visit was not auto-created because Next Visit Date is in the past.";
+                            return RedirectToAction(nameof(Index));
+                        }
+
                         var nextVisit = new ServiceVisit
                         {
                             AMCId = serviceVisit.AMCId,
-                            VisitDate = serviceVisit.NextVisitDate.Value,
+                            VisitDate = nextVisitDate,
                             VisitTime = serviceVisit.VisitTime, // Use same time or default
                             Status = "Scheduled",
                             ServiceEngineer = serviceVisit.ServiceEngineer, // Copy engineer info

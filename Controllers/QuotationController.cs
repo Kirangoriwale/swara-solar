@@ -5,6 +5,7 @@ using SolarBilling.Data;
 using SolarBilling.Models;
 using SolarBilling.Services;
 using System.Linq;
+using System.Globalization;
 
 namespace SolarBilling.Controllers
 {
@@ -397,9 +398,15 @@ namespace SolarBilling.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var quotation = await _context.Quotations.FindAsync(id);
+            var quotation = await _context.Quotations
+                .Include(q => q.QuotationItems)
+                .FirstOrDefaultAsync(q => q.Id == id);
             if (quotation != null)
             {
+                if (quotation.QuotationItems.Any())
+                {
+                    _context.QuotationItems.RemoveRange(quotation.QuotationItems);
+                }
                 _context.Quotations.Remove(quotation);
                 await _context.SaveChangesAsync();
             }
@@ -446,7 +453,7 @@ namespace SolarBilling.Controllers
             if (lastQuotation != null)
             {
                 var parts = lastQuotation.QuotationNumber.Split('-');
-                if (parts.Length == 3 && int.TryParse(parts[2], out int lastNumber))
+                if (parts.Length == 3 && int.TryParse(parts[2], NumberStyles.Integer, CultureInfo.InvariantCulture, out int lastNumber))
                 {
                     nextNumber = lastNumber + 1;
                 }
